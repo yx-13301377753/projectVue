@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script  src="vue.js"></script>
+</head>
+<body>
+
+   <div id="root">
+       <input type="text" v-model="inputValue">
+       <button v-on:click="tijiao">提交</button>
+       <ul class="list">
+           <li v-for="item in list">{{item}}</li>
+       </ul>
+   </div>
+
+   <script>
+      /*
+      *   v-model :双向数据绑定
+      *   v-on:click="tijiao"   绑定事件
+      *   v-for   :循环
+      *
+      * */
+       var app=new Vue({
+           el:"#root",
+           data:{//数据
+               list:[],
+               inputValue:"",
+           },
+           methods:{//定义事件
+               tijiao:function(){
+                   if(this.inputValue!=""){
+                     this.list.push(this.inputValue);//数据改变视图
+                     this.inputValue="";
+                   }
+               }
+           }
+       })
+   </script>
+</body>
+</html>
