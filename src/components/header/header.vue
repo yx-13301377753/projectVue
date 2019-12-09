@@ -15,8 +15,7 @@
                     <span class="text">{{ seller.supports[0].description }}</span>
                 </div>
             </div>
-            <div class="support-count" v-if="seller.supports">
-               <!--<i class="icon-keyboard_arrow_right"></i>-->
+            <div class="support-count" v-if="seller.supports" @click="showDetail = true">
                 <span class="count">{{ seller.supports.length }}个</span>
                 <i class="icon-keyboard_arrow_right"></i>
             </div>
@@ -29,19 +28,37 @@
         <div class="background">
             <img :src="seller.avatar" alt="">
         </div>
-        <div class="detail">
-            <div class="detail-wrapper clearfix">
-                <div class="detail-main" >
-                    <div class="detail-title">{{ seller.name }}</div>
-                </div>
-            </div>
-            <div class="detail-close">
-                <i class="icon-close"></i>
-            </div>
-        </div>
+       <transition name="fade">
+           <div class="detail" v-if="showDetail">
+               <div class="detail-wrapper clearfix">
+                   <div class="detail-main" >
+                       <div class="detail-title">{{ seller.name }}</div>
+                       <div class="detail-star">
+                           <star v-if="seller.score" :size="48" :score="seller.score"/>
+                       </div>
+                       <header-title title="优惠信息"/>
+                       <ul class="detail-supports">
+                           <li class="supports-item" v-for="item,index in seller.supports">
+                               <span class="icon" :class="classMap[item.type]"></span>
+                               <span class="text">{{ item.description }}</span>
+                           </li>
+                       </ul>
+                       <header-title title="商家公告"/>
+                       <div class="detail-bulletin">
+                           <p class="bulletin">{{ seller.bulletin }}</p>
+                       </div>
+                   </div>
+               </div>
+               <div class="detail-close" @click="showDetail = false">
+                   <i class="icon-close"></i>
+               </div>
+           </div>
+       </transition>
     </div>
 </template>
 <script>
+    import star from '@/components/star/star.vue'
+    import HeaderTitle from '@/components/headerTitle/headerTitle.vue'
     export default {
         props : {
             seller : {
@@ -49,8 +66,17 @@
                 required : true
             }
         },
+        data () {
+            return {
+                showDetail : false
+            }
+        },
         created() {
             this.classMap = ['decrease','discount','guarantee','invoice','special']
+        },
+        components : {
+            star,
+            HeaderTitle
         }
     }
 </script>
@@ -195,6 +221,15 @@
         }
     }
     .detail {
+        &.fade-enter,&.fade-leave-to {
+            opacity: 0;
+        }
+        &.fade-enter-active,&.fade-leave-active{
+            transition : .5s;
+        }
+        &.fade-leave,&.fade-enter-to {
+            opacity: 1;
+        }
         position: fixed;
         top: 0;
         left: 0;
@@ -216,6 +251,57 @@
                     line-height: .16rem;
                     font-size: .16rem;
                     font-weight: 700;
+                }
+                .detail-star {
+                    margin: .16rem 0 .28rem 0;
+                    text-align: center;
+                }
+                .detail-supports {
+                    width: 80%;
+                    margin: 0 auto .28rem;
+                    .supports-item {
+                        padding: 0 .12rem;
+                        margin-bottom: .12rem;
+                        .icon {
+                            display: inline-block;
+                            vertical-align: top;
+                            width: .16rem;
+                            height: .16rem;
+                            margin-right: .06rem;
+                            &.decrease {
+                                @include bg-image('./img/decrease_2')
+                            }
+                            &.discount {
+                                @include bg-image('./img/discount_2')
+                            }
+                            &.guarantee {
+                                @include bg-image('./img/guarantee_2')
+                            }
+                            &.invoice {
+                                @include bg-image('./img/invoice_2')
+                            }
+                            &.special {
+                                @include bg-image('./img/special_2')
+                            }
+                        }
+                        .text {
+                            vertical-align: top;
+                            font-size: .12rem;
+                            line-height: .16rem;
+                            font-weight: 200;
+                        }
+                    }
+                }
+                .detail-bulletin {
+                    width: 80%;
+                    margin: 0 auto;
+                    .bulletin {
+                        padding: 0 .12rem;
+                        font-size: .12rem;
+                        font-weight: 200;
+                        line-height: .24rem;
+                        text-align: justify;//字体两端对齐
+                    }
                 }
             }
         }

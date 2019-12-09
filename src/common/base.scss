@@ -1,6 +1,10 @@
 html {
   font-size: 26.667vw;
 }
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
 //清除浮动
 .clearfix:before,
 .clearfix:after {
