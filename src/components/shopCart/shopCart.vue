@@ -13,6 +13,11 @@
             </div>
             <div class="content-right" :class="payClass">{{ pay }}</div>
         </div>
+        <div class="balls-wrapper">
+            <div class="ball" v-for="ball in balls">
+                <div class="ball-inner"></div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -33,6 +38,18 @@
                 type : Number,
                 required : true
             },
+        },
+        data () {
+          return {
+              balls : [
+                  { show : true },
+                  { show : true },
+                  { show : true },
+                  { show : true },
+                  { show : true },
+                  { show : true }
+              ]
+          }
         },
         computed : {
             totalPrice () {//计算总价
@@ -163,6 +180,19 @@
             &.high {
                 background-color: rgb(0,160,220);
                 color: #fff;
+            }
+        }
+    }
+    .balls-wrapper {
+        .ball {
+            position: absolute;
+            left: .32rem;
+            top: .22rem;
+            .ball-inner {
+                background-color:red;
+                width: .16rem;
+                height: .16rem;
+                border-radius : 50%;
             }
         }
     }
