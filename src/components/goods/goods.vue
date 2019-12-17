@@ -1,50 +1,57 @@
 <template>
-    <div class="goods">
-        <div class="nav-menu" ref="menuWrapper">
-            <ul>
-                <li class="menu-item"
-                    :class="{ active : currentIndex === index }"
-                    v-for="(item,index) in goods"
-                    :key="index"
-                    @click="selectMenu(index)"
-                >
+    <div>
+        <div class="goods">
+            <div class="nav-menu" ref="menuWrapper">
+                <ul>
+                    <li class="menu-item"
+                        :class="{ active : currentIndex === index }"
+                        v-for="(item,index) in goods"
+                        :key="index"
+                        @click="selectMenu(index)"
+                    >
                     <span class="text border-1px">
                         <span class="icon" :class="classMap[item.type]" v-if="item.type > 0"></span>
                         {{ item.name }}
                     </span>
-                </li>
-            </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="foods-wrapper" ref="foodsWrapper">
+                <ul>
+                    <li class="food-list" v-for="item,index in goods" :key="index" ref="foodList">
+                        <h1 class="title">{{ item.name }}</h1>
+                        <ul>
+                            <li class="food-item border-1px"
+                                v-for="food,idx in item.foods"
+                                :key="idx"
+                                @click="goDetail(food)"
+                            >
+                                <div class="icon">
+                                    <img width="57" height="57" :src="food.icon" alt="">
+                                </div>
+                                <div class="content">
+                                    <h2 class="name">{{ food.name }}</h2>
+                                    <div class="desc">{{ food.description }}</div>
+                                    <div class="extra">
+                                        <span class="count">月售{{ food.sellCount }}份</span>
+                                        <span>{{ food.rating }}%</span>
+                                    </div>
+                                    <div class="price">
+                                        <span class="new-price">￥{{ food.price }}</span>
+                                        <span class="old-price" v-if="food.oldPrice">￥{{ food.oldPrice }}</span>
+                                    </div>
+                                    <div class="cart-control-wrapper">
+                                        <CartControl :food="food" @addFood="addFood"/>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <shop-cart ref="showCart" v-if="seller.deliveryPrice" :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectFoods"/>
         </div>
-        <div class="foods-wrapper" ref="foodsWrapper">
-            <ul>
-                <li class="food-list" v-for="item,index in goods" :key="index" ref="foodList">
-                    <h1 class="title">{{ item.name }}</h1>
-                    <ul>
-                        <li class="food-item border-1px" v-for="food,idx in item.foods" :key="idx">
-                            <div class="icon">
-                                <img width="57" height="57" :src="food.icon" alt="">
-                            </div>
-                            <div class="content">
-                                <h2 class="name">{{ food.name }}</h2>
-                                <div class="desc">{{ food.description }}</div>
-                                <div class="extra">
-                                    <span class="count">月售{{ food.sellCount }}份</span>
-                                    <span>{{ food.rating }}%</span>
-                                </div>
-                                <div class="price">
-                                    <span class="new-price">￥{{ food.price }}</span>
-                                    <span class="old-price" v-if="food.oldPrice">￥{{ food.oldPrice }}</span>
-                                </div>
-                                <div class="cart-control-wrapper">
-                                    <CartControl :food="food"/>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        <shop-cart v-if="seller.deliveryPrice" :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectFoods"/>
+        <food-detail ref="foodDetail" :food="selectedFood"/>
     </div>
 </template>
 <script>
@@ -52,6 +59,7 @@
     import getData from '@/api/header';
     import ShopCart from '@/components/shopCart/shopCart.vue'
     import CartControl  from '@/components/cartControl/Control.vue'
+    import FoodDetail  from '@/components/foodDetail/foodDetail.vue'
     export default {
         props : {
             seller : {
@@ -62,7 +70,8 @@
             return {
                 goods : [],
                 listHeight : [],//用于存储每一块(foods-item)的高度
-                scrollY : 0
+                scrollY : 0,
+                selectedFood : {}
             }
         },
         computed : {
@@ -70,7 +79,7 @@
                 let foods = [];
                 this.goods.forEach(good => {
                     good.foods.forEach(food => {
-                        foods.push(food)
+                        food.count && (foods.push(food))
                     })
                 });
                 return foods;
@@ -88,7 +97,7 @@
         async created() {
             this.classMap = ['decrease','discount','guarantee','invoice','special']
             this.goods = await getData('/api/goods');
-            await this.$nextTick()//当DOM更新完毕后执行的函数
+            await this.$nextTick();//当DOM更新完毕后执行的函数
             // this.$nextTick(() => {
             //     this.initScroll()
             // })
@@ -124,11 +133,19 @@
                 let foodsList = this.$refs.foodList;
                 let foodList = foodsList[idx];
                 this.foodsScroll.scrollToElement(foodList,500)
+            },
+            addFood (el) {
+                this.$refs.showCart.drop(el)
+            },
+            goDetail (food) {
+                this.selectedFood = food;
+                this.$refs.foodDetail.show();
             }
         },
         components : {
             ShopCart,
-            CartControl
+            CartControl,
+            FoodDetail
         }
     }
 </script>
@@ -269,4 +286,5 @@
         }
     }
 }
+
 </style>
